@@ -4,7 +4,7 @@ import numpy as np
 T = np.load("trace.npy")
 P = np.load("plain.npy")
 C = np.load("cipher.npy")
-K = np.array([i for i in range (16)])
+K = np.arange(16)
 K10 = np.array([0x13, 0x11, 0x1d, 0x7f, 0xe3, 0x94, 0x4a, 0x17, 0xf3, 0x07, 0xa7, 0x8b, 0x4d, 0x2b, 0x30, 0xc5])
 TraceNum = len(T)
 TraceLen = len(T[0])
@@ -37,15 +37,8 @@ ISB = [0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0
 
 MC = [0, 5, 10, 15, 4, 9, 14, 3, 8, 13, 2, 7, 12, 1, 6, 11]
 
-AveTrace = np.array([0.0 for i in range (TraceLen)])
-for i in range (TraceNum):
-	AveTrace = AveTrace + T[i]
-AveTrace = AveTrace / TraceNum
-
-VarTrace = np.array([0.0 for i in range (TraceLen)])
-for i in range (TraceNum):
-	VarTrace = VarTrace + (T[i] - AveTrace) * (T[i] - AveTrace)
-VarTrace = VarTrace / TraceNum
+AveTrace = np.average(T, axis=0)
+VarTrace = np.var(T, axis=0)
 
 Left = 1660
 Right = 1670
