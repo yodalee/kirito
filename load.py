@@ -1,27 +1,24 @@
 import glob
 import numpy as np
 
-# Load Trace
-TraceNum = 0
-T = {}
-for i in sorted(glob.glob("trace/*.txt")):
-	T[TraceNum] = np.loadtxt(i)
-	TraceNum = TraceNum + 1
-TraceLen = len(T[0])
+# Preload trace to get TraceLen
+filelist = sorted(glob.glob("trace/trace*.txt"))
+TraceNum = len(filelist)
+TraceLen = len(np.loadtxt(filelist[0]))
+
+# Load/Save Trace
+Trace = np.zeros((TraceNum, TraceLen), np.dtype('i2'))
+for i, f in enumerate(filelist):
+    Trace[i] = np.genfromtxt(f,np.dtype('i2'))
+np.save("trace.npy", Trace)
 
 # Load Plaintext and Ciphertext
 P = {}
 C = {}
 with open("trace/log/log1.txt", "r") as log:
 	for i in range (TraceNum):
-		P[i] = log.readline().rstrip('\n').rstrip('\r')[-32:]
-		C[i] = log.readline().rstrip('\n').rstrip('\r')[-32:]
-
-# Save Trace
-Trace = np.array([[0 for i in range (TraceLen)] for j in range (TraceNum)], np.dtype('i2'))
-for i in range (TraceNum):
-	Trace[i] = T[i]
-np.save("trace.npy", Trace)
+		P[i] = log.readline().rstrip()[-32:]
+		C[i] = log.readline().rstrip()[-32:]
 
 # Save Plaintext and Ciphertext
 Plain = np.array([[0 for i in range (16)] for j in range (TraceNum)], np.dtype('u1'))
