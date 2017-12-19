@@ -37,23 +37,27 @@ VarTrace = np.var(T, axis=0)
 
 Left = 1660
 Right = 1670
+
 for byte in range (16):
-    MaxValue = np.array([0.0 for i in range (256)])
+    MaxValue = np.zeros(256, dtype=np.float64)
     for i in range (256):
-        X = np.array([0.0 for j in range (TraceNum)])
-        Y = np.array([0 for j in range (TraceNum)])
-        CorrTrace = np.array([0.0 for j in range (TraceLen)])
+        X = np.zeros(TraceNum, np.float64)
+        Y = np.zeros(TraceNum, np.int)
+        CorrTrace = np.zeros(TraceLen, np.float64)
         for j in range (TraceNum):
             Y[j] = HW(C[j][MC[byte]] ^ (ISB[C[j][byte] ^ i]))
         for j in range (Left, Right):
             X = T[0:TraceNum, j]
             CorrTrace[j] = abs(np.corrcoef(X, Y)[0][1])
         MaxValue[i] = max(CorrTrace[Left:Right])
-    if np.argmax(MaxValue) == K10[byte]:
+    ansbyte = np.argmax(MaxValue)
+
+    if ansbyte == K10[byte]:
         s = "(O)"
     else:
         s = "(X)"
-    print("Byte", hex(byte)[2:], "=", hex(np.argmax(MaxValue)).rstrip('L')[2:].zfill(2), "with correlation = %.4f" % max(MaxValue), s)
+    print("Byte {} = {} with correlation {:.4f} {}".format(
+            hex(byte)[2:], hex(ansbyte).rstrip('L')[2:].zfill(2), max(MaxValue), s))
 
 #plt.plot(AveTrace)
 #plt.plot(VarTrace)
