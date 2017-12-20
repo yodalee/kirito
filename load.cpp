@@ -13,6 +13,7 @@ using std::vector;
 using std::string;
 
 string LOGDIR("trace/");
+string OUTPUT("trace_cpp.npy");
 
 vector<int16_t> loadfile(string file) {
   std::cout << LOGDIR + file << std::endl;
@@ -43,19 +44,39 @@ vector<string> listdir(const char *path) {
   return filelist;
 }
 
-vector<vector<int16_t>> loaddir(string path) {
-  vector<vector<int16_t>> data;
+// load dir, read every file into a big large vector
+int loaddir(string path) {
+  vector<int16_t> data;
+  uint64_t row = 0;
+  uint64_t col = 0;
+
+  // list directory and sort it
   vector<string> filelist = listdir(path.c_str());
   sort(filelist.begin(), filelist.end());
-  for (auto s: filelist) {
-    data.push_back(loadfile(s.c_str()));
+
+  // skip if list is empty
+  row = filelist.size();
+  if (row == 0) {
+    return EXIT_FAILURE;
   }
-  return data;
+
+  // preload, reserve space for data
+  auto preload = loadfile(filelist[0].c_str());
+  col = preload.size();
+  data.reserve(row * col);
+
+  // iterator filelist
+  for (auto s: filelist) {
+    auto load = loadfile(s.c_str());
+    data.insert(data.end(), load.cbegin(), load.cend());
+  }
+  cnpy::npy_save(OUTPUT, &data[0], {row, col}, "w");
+
+  return EXIT_SUCCESS;
 }
 
 int main(int argc, char *argv[])
 {
-  auto data = loaddir(LOGDIR);
-
-  return 0;
+  int ret = loaddir(LOGDIR);
+  return ret;
 }
