@@ -2,6 +2,3 @@
 *.pyc
 *.npy
 /trace
-
-*.o
-/load
