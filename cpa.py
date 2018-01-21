@@ -1,7 +1,7 @@
 import numpy as np
 #import matplotlib.pyplot as plt
 
-T = np.load("trace.npy")
+T = np.load("trace_cpp.npy")
 P = np.load("plain.npy")
 C = np.load("cipher.npy")
 K = np.arange(16)
@@ -38,27 +38,38 @@ VarTrace = np.var(T, axis=0)
 Left = 1660
 Right = 1670
 
-for byte in range (16):
-    MaxValue = np.zeros(256, dtype=np.float64)
-    for i in range (256):
-        X = np.zeros(TraceNum, np.float64)
-        Y = np.zeros(TraceNum, np.int)
-        CorrTrace = np.zeros(TraceLen, np.float64)
-        for j in range (TraceNum):
-            Y[j] = HW(C[j][MC[byte]] ^ (ISB[C[j][byte] ^ i]))
-        for j in range (Left, Right):
-            X = T[0:TraceNum, j]
-            CorrTrace[j] = abs(np.corrcoef(X, Y)[0][1])
-        MaxValue[i] = max(CorrTrace[Left:Right])
-    ansbyte = np.argmax(MaxValue)
+def npCalCorr(X, Y):
+    """Calculate correlation of array X and Y
 
-    if ansbyte == K10[byte]:
-        s = "(O)"
-    else:
-        s = "(X)"
-    print("Byte {} = {} with correlation {:.4f} {}".format(
-            hex(byte)[2:], hex(ansbyte).rstrip('L')[2:].zfill(2), max(MaxValue), s))
+    :X: Numpy array X
+    :Y: Numpy array Y
+    :returns: correlation coefficient of X and Y
 
-#plt.plot(AveTrace)
-#plt.plot(VarTrace)
-#plt.show()
+    """
+    return np.corrcoef(X, Y)[0][1]
+
+def main():
+    for byte in range (1):
+        MaxValue = np.zeros(256, dtype=np.float64)
+        for i in range (1):
+            X = np.zeros(TraceNum, np.float64)
+            Y = np.zeros(TraceNum, np.int)
+            CorrTrace = np.zeros(TraceLen, np.float64)
+            for j in range (TraceNum):
+                Y[j] = HW(C[j][MC[byte]] ^ (ISB[C[j][byte] ^ i]))
+            for j in range (Left, Right):
+                X = T[0:TraceNum, j]
+                CorrTrace[j] = abs(npCalCorr(X,Y))
+            print(CorrTrace[Left:Right])
+            MaxValue[i] = max(CorrTrace[Left:Right])
+        ansbyte = np.argmax(MaxValue)
+
+        if ansbyte == K10[byte]:
+            s = "(O)"
+        else:
+            s = "(X)"
+        print("Byte {} = {} with correlation {:.4f} {}".format(
+                hex(byte)[2:], hex(ansbyte).rstrip('L')[2:].zfill(2), max(MaxValue), s))
+
+if __name__ == "__main__":
+    main()
