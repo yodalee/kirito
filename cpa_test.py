@@ -10,10 +10,17 @@ class TestCorrelation(unittest.TestCase):
         self.utils = Utils()
 
     def testCorrelation(self):
+        X = np.random.rand(1000) * 2 - 1
+        Y = np.random.rand(1000) * 2 - 1
+        ans = np.corrcoef(X, Y)[0][1]
+        ret = self.utils.cuCalCorr(X, Y)
+        self.assertAlmostEqual(ans, ret)
+
+    def testHandmade(self):
         X = np.random.rand(10) * 2 - 1
         Y = np.random.rand(10) * 2 - 1
         ans = np.corrcoef(X, Y)[0][1]
-        ret = self.utils.cuCalCorr(X, Y)
+        ret = self.utils.handCalCorr(X, Y)
         self.assertAlmostEqual(ans, ret)
 
 if __name__ == "__main__":

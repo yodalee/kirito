@@ -54,13 +54,37 @@ class Utils():
         """
         return np.corrcoef(X, Y)[0][1]
 
-    def cuCalCorr(self, X, Y):
-        """Calculate correlation of array X and Y using CUDA
+    def handCalCorr(self, X, Y):
+        """Calculate correlation of array X and Y by manual
 
         :X: Numpy array X
         :Y: Numpy array Y
         :returns: correlation coefficient of X and Y
         """
-        return 0
+        if len(X) != len(Y):
+            print("length of array should equal")
 
+        # avgX = np.average(X)
+        # avgY = np.average(Y)
+        # xy = 0
+        # varx = 0
+        # vary = 0
+        # for x,y in zip(X,Y):
+        #     xy += (x - avgX) * (y - avgY)
+        #     varx += (x - avgX) ** 2
+        #     vary += (y - avgY) ** 2
 
+        l = len(X)
+        xy = 0
+        sumX = 0
+        sumY = 0
+        sumXsq = 0
+        sumYsq = 0
+        for x,y in zip(X,Y):
+            xy += x * y
+            sumX += x
+            sumY += y
+            sumXsq += x * x
+            sumYsq += y * y
+
+        return (l * xy - sumX * sumY) / (np.sqrt(l * sumXsq - sumX * sumX) * np.sqrt(l * sumYsq - sumY * sumY))
